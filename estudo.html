@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokedex do Vitor</title>
+    <link rel="stylesheet" type="text/css" href="./PokemonGbJapanHrregular-Bq93.ttf">
+    <link rel="stylesheet" type="text/css" href="./PokemonUnownGb-YAWa.ttf">
+    <link rel="stylesheet" type="text/css" href="./PokemonGbJapanKt-8Rw2.ttf">
+    <link rel="stylesheet" type="text/css" href="./PokemonGb-RAeo.ttf">
+</head>
+<body>
+    <div id="div_principal">
+        <h3 id="placar">PLACAR: <span id="placarJogador1"></span> - <span id="placarJogador2"></span></h3>
+        <h3 id="placar2"></h3>
+        <button id="buttonBatalhar" onclick="Procurar()">BATALHAR</button>
+     <div id="divPokemon1" class="divsPokemons">
+            <div id="mostrar">
+                <div id="img_pokemon"></div>
+                <h1 id="nomePokemon"></h1><br>
+        </div>
+        <div id="informacoes_pokemon">
+            <h4>Pokemon do tipo: <br><br><span id="tipo_pokemon"></span></h4>
+        </div>
+    </div>
+    <h1 id="versus">VS</h1>
+    <div id="divPokemon2" class="divsPokemons">
+            <div id="mostrar">
+                <div id="img_pokemon2"></div>
+                <h1 id="nomePokemon2"></h1><br>
+        </div>
+        <div id="informacoes_pokemon">
+            <h4>Pokemon do tipo: <br><br><span id="tipo_pokemon2"></span></h4>
+        </div>
+    </div>
+    </div>
+    <div id="divComoJogar">
+        <h2>Como jogar ?</h2>
+        <p>O jogo vai começa com um placar de 0 a 0, vc pode jogar com um amigo ou contra o sistema mesmo, é só escolher um lado. <br><br>Quando apertar em "BATALHAR", ele vai gerar dois pokemons, um numero de 1 a 600, que seria os pokemons de varias gerações. <br><br>O jogo vai atualizar a quantidade de pontos a cada clique no botão, o número será atualizado no canto superior esquerdo. <br><br>Em relação aos pontos, o pokemon vencedor será o que tem a <b>base de experiencia</b> maior, não de poder ou tipo, pode ser que um dialga perca para um pikachu por exemplo, vai depender da sua sorte.</p>
+    </div>
+    
+</body>
+<script>
+var pontosPokemons = [];
+var contador1 = 1
+var contador2 = 1
+
+function buscarPokemon(id, nomePokemon, tipoPokemon, imagemPokemon) {
+    fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
+        .then(resposta => resposta.json())
+        .then(item => {
+            if (item.name || item.id) {
+                const pontos = item['base_experience'];
+                const tipo = item['types'][0]['type']['name'];
+                const img = item['sprites']['versions']['generation-v']['black-white']['animated']['front_default'];
+                nomePokemon.innerHTML = `${item.id} - ${item.name.toUpperCase()}`;
+                imagemPokemon.innerHTML = `<img src="${img}" style="width: 150px; height: 150px; background-size: contain;" id="imagem">`;
+                tipoPokemon.innerHTML = tipo.toUpperCase();
+                pontosPokemons.push(pontos);
+           
+                Batalhar(pontosPokemons);
+                
+            } else {
+                imagemPokemon.innerHTML = 'Pokemon não encontrado :(';
+                nomePokemon.innerHTML = '';
+                tipoPokemon.innerHTML = '';
+            }
+        })
+        .catch(error => console.log('Erro:', error));
+}
+
+function Procurar() {
+    var nome = document.getElementById('nomePokemon');
+    var tipoDiv = document.getElementById('tipo_pokemon');
+    var imagem = document.getElementById('img_pokemon');
+    pontosPokemons = []; 
+
+    var minNumero = 1;
+    var maximoNumero = 600;
+    var intervalo = maximoNumero - minNumero;
+    var aleatorio = parseInt(minNumero + Math.random() * intervalo + 1);
+
+    buscarPokemon(aleatorio, nome, tipoDiv, imagem);
+    Procurar2();
+}
+
+function Procurar2() {
+    var nome = document.getElementById('nomePokemon2');
+    var tipoDiv = document.getElementById('tipo_pokemon2');
+    var imagem = document.getElementById('img_pokemon2');
+
+    var minNumero = 1;
+    var maximoNumero = 600;
+    var intervalo = maximoNumero - minNumero;
+    var aleatorio = parseInt(minNumero + Math.random() * intervalo + 1);
+
+    buscarPokemon(aleatorio, nome, tipoDiv, imagem);
+}
+
+function Batalhar(pontos) {
+    var divJogador1 = document.getElementById('placarJogador1')
+    var divJogador2 = document.getElementById('placarJogador2')
+    var divPlcar2 = document.getElementById('placar2')
+    const pontos1 = pontos[0];
+    const pontos2 = pontos[1];
+    
+    if (pontos1 < pontos2) {
+        divJogador2.innerHTML = contador2++
+        divPlcar2.innerHTML = 'Jogador 2 ganhou essa rodada!'
+    } else if (pontos2 < pontos1) {
+        divJogador1.innerHTML = contador1++
+        divPlcar2.innerHTML = 'Jogador 1 ganhou essa rodada!'
+        
+    }
+}
+</script>
+<style>
+    #divComoJogar {
+        margin-top: 14%;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        margin-bottom: 3%;
+    }
+    #divComoJogar p {
+        width: 70%;
+    }
+    #placar {
+        position: absolute;
+        left: 5%;
+        top: 5%;
+    }
+    #placar2 {
+        position: absolute;
+        top: 5%;
+        right: 5%;
+        font-size: 12px;
+    }
+    #buttonBatalhar {
+        position: absolute;
+        top: 10%;
+        left: 42%;
+        width: 20%;
+        padding: 1%;
+        border-radius: 20px;
+        background-color: black;
+        color: white;
+        cursor: pointer;
+    }
+    .divsPokemons {
+        margin-top: 6%;
+        max-width: 320px;
+        max-height: 300px;
+    }
+    #versus {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+    }
+    * {
+        font-family: Pokemon GB;
+    }
+    @font-face {
+        font-family: Pokemon GB;
+        src: url('./PokemonGb-RAeo.ttf');
+    }
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+    }
+    #divPokemon2 {
+        margin-left: 20%;
+     
+    }
+
+    #div_principal {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        margin-top: 3%;
+        
+    }
+
+    #mostrar {
+        width: 100%;
+        height:100%;
+        border-top-right-radius: 15px;
+        border-top-left-radius: 15px;
+        text-align: center;
+        margin-top: 5%;
+        color: black;
+        border: 5px solid black;
+        border-bottom: 2px solid black;
+        padding: 7%;
+        /* -webkit-box-shadow: 6px 1px 8px 0px rgba(0,0,0,0.75);
+-moz-box-shadow: 6px 1px 8px 0px rgba(0,0,0,0.75);
+box-shadow: 6px 1px 8px 0px rgba(0,0,0,0.75); */
+    }
+    #nomePokemon {
+        color: black;
+        font-size: 20px;
+        font-weight: 700;
+    }
+     #nomePokemon2 {
+        color: black;
+        font-size: 20px;
+        font-weight: 700;
+    }
+    #informacoes_pokemon {
+        width: 102%;
+        height: 100%;
+        text-align: left;
+        font-size: 15px;
+        border: 5px solid black;
+        border-top: 2px solid black;
+        padding: 6%;
+        border-bottom-right-radius: 15px;
+        border-bottom-left-radius: 15px;
+        /* -webkit-box-shadow: 6px 5px 8px 0px rgba(0,0,0,0.65);
+-moz-box-shadow: 6px 5px 8px 0px rgba(0,0,0,0.65);
+box-shadow: 6px 5px 8px 0px rgba(0,0,0,0.65); */
+    }
+</style>
+</html>
